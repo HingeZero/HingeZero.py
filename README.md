@@ -1,12 +1,16 @@
+# HingeZero
 
 HingeZero treats the neighbourhood around zero as an active equilibrium region, not a passive dead zone.
 
-The core operation uses dual tanh coupling:
+The system uses deterministic dual-tanh associative dynamics for stabilised memory recall under noisy or corrupted inputs.
 
-H(x, y) = tanh(α(x - z₀)) · tanh(α(y + z₀))
+---
 
-This creates a bounded nonlinear hinge around zero, allowing opposing states to meet, cancel, hold tension, and resolve into stability.
+## Core Update Rule
 
-Minimal use:
+```python
+h = W @ x
 
-stable = hingezero_update(query, memory)
+φ(h) = tanh(h) + α·tanh(2h)
+
+x(t+1) = (1 − λ)x(t) + ε·φ(h)
