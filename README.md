@@ -2,7 +2,7 @@
 
 HingeZero treats the neighbourhood around zero as an active equilibrium region, not a passive dead zone.
 
-This implementation is the **scalable production-style version** of HingeZero.
+This implementation is the scalable production-style version of HingeZero.
 
 Unlike the minimal validation core, this version avoids dense `N × N` Hebbian matrices and instead uses:
 
@@ -20,63 +20,36 @@ Unlike the minimal validation core, this version avoids dense `N × N` Hebbian m
 φ(h) = tanh(h) + α·tanh(2h)
 ```
 
-The hinge operator is applied during recall refinement.
-
 ---
 
 # Scalable Recall Pipeline
 
 ```text
 Memory Bank (P × N)
-
         ↓
-
 Candidate Search
-(cosine / dot)
-
         ↓
-
 Top-K Selection
-
         ↓
-
 Local Retrieval Field
-
         ↓
-
 HingeZero Refinement
-
         ↓
-
 Final Recall
 ```
 
-This avoids building:
+Avoids:
 
 ```text
 W ∈ R^(N×N)
 ```
 
-allowing larger memory banks.
-
 ---
 
-# Recall Update Rule
+# Recall Update
 
 ```text
-x(t+1) = (1 − λ)x(t) + ε·φ(h)
-```
-
-where:
-
-```text
-h = local retrieval field
-```
-
-and:
-
-```text
-φ(h) = tanh(h) + α·tanh(2h)
+x(t+1) = (1−λ)x(t) + ε·φ(h)
 ```
 
 ---
@@ -85,15 +58,20 @@ and:
 
 ```python
 import numpy as np
+from hingezero import HingeZeroMemory
 
 rng = np.random.default_rng(0)
 
 N = 512
-P = 100000
+P = 10000
 
 memory = rng.choice(
     [-1.0, 1.0],
     size=(P, N)
+)
+
+hz = HingeZeroMemory(
+    metric="cosine"
 )
 
 hz.fit(memory)
@@ -111,76 +89,50 @@ result = hz.recall(
     top_k=64
 )
 
-print(result.index)
-print(result.similarity)
+print("index:", result.index)
+print("similarity:", result.similarity)
+print("margin:", result.margin)
 ```
 
 ---
 
 # Design Goals
 
-HingeZero is designed for:
-
 - Stable recall under noise
 - Corrupted input recovery
 - Large memory banks
-- Low precision systems
 - Deterministic retrieval
 - Quantised memory experiments
 
 ---
 
-# Validation Notes
+# Validation
 
-Minimal validation implementation:
+Minimal:
 
 ```text
 h = W @ x
-
-φ(h) = tanh(h) + α·tanh(2h)
-
-x(t+1) = (1−λ)x(t) + ε·φ(h)
+φ(h)=tanh(h)+α·tanh(2h)
+x(t+1)=(1−λ)x(t)+εφ(h)
 ```
 
-Scalable implementation:
+Scalable:
 
 ```text
-Memory bank → Top-K → HingeZero refinement
+Memory → Search → Top-K → HZ refinement
 ```
 
-Both remain deterministic.
-
 ---
 
-# Current Status
-
-Current repository contains:
-
-✓ Scalable memory-bank implementation
-
-✓ Production-style retrieval
-
-✓ Deterministic refinement
-
-✓ Large-scale testing support
-
-✓ Noise validation framework
-
----
-
-## Public Description
+Public description:
 
 HingeZero is a deterministic associative-memory stabilisation layer designed for robust recall under noisy or corrupted inputs.
 
-The scalable implementation avoids dense `N × N` weight matrices and instead performs:
+The scalable implementation avoids dense matrices and performs:
 
 Memory Bank → Candidate Search → Top-K → HingeZero Refinement
 
-This enables larger memory banks while preserving deterministic recall behaviour.
-
 ---
-
-Founder:
 
 David Duffy  
 HingeZero Ltd
