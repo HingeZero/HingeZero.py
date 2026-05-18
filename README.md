@@ -140,5 +140,9 @@ Memory Bank → Candidate Search → Top-K → HingeZero Refinement
 
 ---
 
-David Duffy  
-HingeZero Ltd
+
+if you have questions or any difficulties with settings you can get me on LinkedIn 
+https://www.linkedin.com/in/david-duffy-b3a586282?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
+
+David Duffy
+Founder/CTO HingeZero.
